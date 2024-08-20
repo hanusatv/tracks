@@ -1,0 +1,61 @@
+# Base image
+FROM python:3.11
+
+# Java packages
+RUN apt-get update && \
+    apt-get install -y default-jdk && \
+    apt-get install -y wget default-jre-headless && \
+    apt-get install -y protobuf-compiler && \
+    apt-get install libprotobuf-java
+
+# Scala packages (try to do the same as for the Scala project)
+RUN apt-get update && apt-get install -y scala
+
+# Setup Python virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install Python packages
+RUN python -m pip install --upgrade pip && pip install \
+    faker \
+    pexpect \
+    pytest \
+    pytest-repeat \
+    pytest-xdist \
+	protobuf
+
+WORKDIR /app
+
+# compiling proto
+COPY *.proto /app/
+RUN echo these files are available before proto compile; ls -lisaR
+RUN protoc --version
+RUN for p in *.proto; do echo compiling $p to Java; protoc --java_out=. $p; done
+RUN for p in *.proto; do echo compiling $p to Python; protoc --python_out=. $p; done
+RUN echo these files are available after proto compile; ls -lisaR
+
+# prepare to save the generated files
+RUN mkdir generated
+RUN cp *.py *.java generated
+
+# Copy teacher tests
+COPY *.py /app/
+
+# Copy student solutions
+COPY *.scala *.java /app/
+# COPY *.py /app/ - already done before
+
+# compiling proto
+RUN echo recompiling proto
+RUN for p in *.proto; do echo compiling $p to Java; protoc --java_out=. $p; done
+RUN for p in *.proto; do echo compiling $p to Python; protoc --python_out=. $p; done
+RUN echo these files are available before java and scala compile; ls -lisaR
+
+RUN javac -cp /usr/share/java/protobuf.jar *.java
+RUN scalac -cp ".:/usr/share/java/protobuf.jar" *.scala
+
+RUN echo these files are available after compile; ls -lisaR
+
+# Run tests
+#ENTRYPOINT ["py.test",  "--verbose",  "--color=yes"]

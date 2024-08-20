@@ -1,0 +1,38 @@
+# Base image - swipl
+FROM swipl:stable
+
+# Python packages
+RUN apt-get update && \
+    apt-get install -y python3 python3-venv python
+
+##### alternative base image - does not have current swi-prolog
+## Base image
+#FROM python:3.7-stretch
+#
+## Prolog
+#RUN apt-get update && \
+#    apt-get install -y wget swi-prolog
+
+# Setup Python virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install Python packages
+RUN python3 -m pip install --upgrade pip && pip install \
+    faker \
+    pexpect \
+    pytest \
+    pytest-repeat \
+    pytest-xdist
+
+WORKDIR /app
+
+# Copy teacher tests
+COPY *.py /app/
+
+# Copy student solutions
+COPY *.p* /app/
+
+# Run tests
+#ENTRYPOINT ["py.test",  "--verbose",  "--color=yes"]

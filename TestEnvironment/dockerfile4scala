@@ -6,10 +6,8 @@ RUN apt-get update && \
     apt-get install -y wget default-jre-headless
 
 # Scala packages
-RUN apt-get update && apt-get install -y scala
-# could use precise version if needed by using the next two lines instead
-#RUN wget -q https://www.scala-lang.org/files/archive/scala-2.13.11.deb
-#RUN dpkg -i scala-2.13.11.deb
+RUN curl -fL https://github.com/coursier/coursier/releases/latest/download/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && yes | ./cs setup
+ENV PATH="$PATH:/root/.local/share/coursier/bin"
 
 # Setup Python virtual environment
 ENV VIRTUAL_ENV=/opt/venv

@@ -32,5 +32,8 @@ COPY *.py /app/
 COPY *.scala /app/
 RUN scalac /app/*.scala -d solver.jar
 
+# Just to download compilation server
+RUN scalac /app/*.scala -d solver.jar
+
 # Run tests
 #ENTRYPOINT ["py.test",  "--verbose",  "--color=yes"]

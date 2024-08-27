@@ -3,7 +3,7 @@ FROM python:3.12
 
 # Java packages
 RUN apt-get update && \
-    apt-get install -y wget default-jre-headless
+    apt-get install -y wget default-jre-headless default-jdk-headless
 
 # Scala packages
 RUN curl -fL https://github.com/coursier/coursier/releases/latest/download/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && yes | ./cs setup

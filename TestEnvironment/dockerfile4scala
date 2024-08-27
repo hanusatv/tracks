@@ -30,7 +30,7 @@ COPY *.py /app/
 
 # Copy student solutions
 COPY *.scala /app/
-RUN scalac /app/*.scala
+RUN scalac /app/*.scala -d solver.jar
 
 # Run tests
 #ENTRYPOINT ["py.test",  "--verbose",  "--color=yes"]
